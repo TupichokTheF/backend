@@ -2,7 +2,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file="../.env",
+        extra="ignore",
+    )
     POSTGRES_SERVER: str = ""
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = ""
@@ -19,5 +22,7 @@ class Settings(BaseSettings):
             password=self.POSTGRES_PASSWORD,
             path=self.POSTGRES_DB
         )
+
+    JWT_SECRET_KEY: str
 
 settings = Settings()
