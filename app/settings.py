@@ -23,6 +23,6 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB
         )
 
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = ""
 
 settings = Settings()

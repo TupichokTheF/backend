@@ -6,14 +6,14 @@ import asyncio
 
 from app import models
 from app.initialize_database import engine
-from app.api.schemas import PaginatedParams, ProductCreate
+from app.schemas.products import ProductCreate
 
 async def get_all_products(session: AsyncSession):
     query = select(models.Product)
     res = await session.execute(query)
     return res.scalars().all()
 
-async def get_paginated_products(session: AsyncSession, params: dict[str]):
+async def get_paginated_products(session: AsyncSession, params: dict[str, int]):
     query = select(models.Product).limit(params["limit"]).offset(params["offset"])
     res = await session.execute(query)
     return res.scalars().all()

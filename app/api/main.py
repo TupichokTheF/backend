@@ -1,4 +1,4 @@
-from app.api.routes.products import products_router
+from app.api.routes.products.products_router import products_router
 
 from fastapi import APIRouter
 
