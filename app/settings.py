@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn
 
+from datetime import timedelta
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../.env",
@@ -24,5 +26,6 @@ class Settings(BaseSettings):
         )
 
     JWT_SECRET_KEY: str = ""
+    ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=15)
 
 settings = Settings()

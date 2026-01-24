@@ -1,11 +1,7 @@
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-import asyncio
-
 from app import models
-from app.initialize_database import engine
 from app.schemas.products import ProductCreate
 
 async def get_all_products(session: AsyncSession):
@@ -26,12 +22,3 @@ async def add_product(session: AsyncSession, product_data: ProductCreate):
         return {"status": "Successfully added"}
     except Exception as e:
         raise e
-
-async def main():
-    session = async_sessionmaker(engine)
-    async with session() as ses:
-        Users = await get_all_users(ses)
-        print(Users)
-
-if __name__ == "__main__":
-    asyncio.run(main())
