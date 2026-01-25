@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, DateTime
 
 Base = declarative_base()
 
@@ -11,11 +11,12 @@ class User(Base):
     user_id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(50), nullable=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
     is_seller: Mapped[bool]
 
     products: Mapped[list["Product"]] = relationship()
     orders: Mapped[list["Order"]] = relationship()
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship()
 
 class Product(Base):
     __tablename__ = "products"
@@ -44,7 +45,7 @@ class Order(Base):
     order_id: Mapped[int] = mapped_column(primary_key=True)
     receiver_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("order_statuses.status_id"))
-    created_at: Mapped[datetime]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     status: Mapped["OrderStatus"] = relationship(back_populates="orders")
     receiver: Mapped["User"] = relationship(back_populates="orders")
@@ -59,5 +60,16 @@ class OrderDetails(Base):
 
     product: Mapped["Product"] = relationship(back_populates="order_details")
     order: Mapped["Order"] = relationship(back_populates="order_details")
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    token_id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(ForeignKey("users.username"))
+    refresh_token: Mapped[str] = mapped_column(nullable = False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    expired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    usernames: Mapped["User"] = relationship(back_populates='refresh_tokens')
 
 

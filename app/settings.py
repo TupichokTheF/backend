@@ -25,7 +25,9 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB
         )
 
+    ALGORITHM_OF_CIFER: str = "HS256"
     JWT_SECRET_KEY: str = ""
-    ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=15)
+    ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=1)
+    REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=1)
 
 settings = Settings()
