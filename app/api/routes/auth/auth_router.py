@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Cookie, Response
 
-from app.api.deps import SessionDep, AuthorizationDep
-from app.crud.users import get_user_by_email, get_user_by_username, add_user
-from app.crud.tokens import delete_refresh_token, get_refresh_token
-from app.api.routes.auth.utils import create_access_token, authenticate_user, create_refresh_token
+from app.services.user_service import UserServiceDep
+from app.api.deps import AuthorizationDep
+from app.api.routes.auth.utils import AuthServiceDep
 from app.schemas.tokens import TokenBase
 from app.schemas.user import UserAuthentication, UserSignup, UserResponse
 
@@ -14,8 +13,8 @@ auth_router = APIRouter(
 )
 
 @auth_router.post("/auth")
-async def auth_user(session: SessionDep, data: UserAuthentication, response: Response):
-    user = await authenticate_user(session, data)
+async def auth_user(auth_service: AuthServiceDep, data: UserAuthentication, response: Response):
+    user = await auth_service.authenticate_user(data)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -23,8 +22,8 @@ async def auth_user(session: SessionDep, data: UserAuthentication, response: Res
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token({"sub": user.username})
-    refresh_token = await create_refresh_token(session, {"sub": user.username})
+    access_token = await auth_service.generate_token({"sub": user.username})
+    refresh_token = await auth_service.generate_refresh_token({"sub": user.username})
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
@@ -35,38 +34,29 @@ async def auth_user(session: SessionDep, data: UserAuthentication, response: Res
     return TokenBase(access_token=access_token, token_type="bearer")
 
 @auth_router.post("/signup")
-async def signup_user(session: SessionDep, data: UserSignup):
-    if not await get_user_by_email(session, data.email):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already used"
-        )
-    if not await get_user_by_username(session, data.username):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username already used"
-        )
-    return await add_user(session, data)
+async def signup_user(user_service: UserServiceDep, data: UserSignup):
+    try:
+        return await user_service.add_user_if_not_exist(data)
+    except HTTPException as e:
+        raise e
 
 @auth_router.post("/logout")
-async def logout_user(session: SessionDep, response: Response, refresh_token: Annotated[str, Cookie()]):
-    refresh_token = await get_refresh_token(session, refresh_token)
-    if not refresh_token:
+async def logout_user(auth_service: AuthServiceDep, response: Response, refresh_token: Annotated[str, Cookie()]):
+    try:
+        token = await auth_service.get_refresh_token(refresh_token)
+        await auth_service.delete_refresh_token(token)
+        response.delete_cookie("refresh_token")
+        return {"detail": "Logged out"}
+    except Exception:
         return {"detail": "Refresh token invalid"}
-    await delete_refresh_token(session, refresh_token)
-    response.delete_cookie("refresh_token")
-    return {"detail": "Logged out"}
 
 @auth_router.post("/refresh")
-async def refresh_user_token(session: SessionDep, refresh_token: Annotated[str, Cookie()]):
-    refresh_token = await get_refresh_token(session, refresh_token)
-    if not refresh_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect refresh token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token = create_access_token({"sub": refresh_token.username})
+async def refresh_user_token(auth_service: AuthServiceDep, refresh_token: Annotated[str, Cookie()]):
+    try:
+        refresh_token = await auth_service.get_refresh_token(refresh_token)
+    except HTTPException as e:
+        raise e
+    access_token = await auth_service.generate_token({"sub": refresh_token.username})
     return TokenBase(access_token=access_token, token_type="bearer")
 
 
