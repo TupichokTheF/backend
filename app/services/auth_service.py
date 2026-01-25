@@ -1,5 +1,5 @@
-from app.security import verify_password
-from app.settings import settings
+from app.core.security import verify_password
+from app.core.settings import settings
 from app.crud.users import UserRepositoryDep
 from app.crud.tokens import TokenRepositoryDep
 from app.schemas.user import UserAuthentication

@@ -3,7 +3,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 
 from app.api.main import api_router
-from app.initialize_database import database
+from app.database import database
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):

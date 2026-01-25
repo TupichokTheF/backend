@@ -5,4 +5,3 @@ def get_password_hash(password: str):
 
 def verify_password(users_password: str, hashed_password: str):
     return checkpw(users_password.encode("utf-8"), hashed_password.encode("utf-8"))
-    #return users_password == hashed_password

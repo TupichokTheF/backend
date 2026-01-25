@@ -1,11 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import Depends
 
 from app import models
-from app.initialize_database import SessionDep
+from app.database import SessionDep
 from app.schemas.user import UserSignup
-from app.security import get_password_hash
+from app.core.security import get_password_hash
 
 from typing import Annotated
 

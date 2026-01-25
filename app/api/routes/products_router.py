@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 
 from typing import Annotated
 
-from app.initialize_database import SessionDep
+from app.database import SessionDep
 from app.api.deps import PaginationDep
 from app.schemas.products import ProductCreate
 from app.crud.products import get_paginated_products, add_product

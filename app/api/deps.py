@@ -6,9 +6,9 @@ from typing import Annotated
 
 from app.schemas.user import UserResponse
 from app.schemas.tokens import TokenData
-from app.settings import settings
+from app.core.settings import settings
 from app.crud.users import UserRepositoryDep
-from app.api.routes.auth.utils import AuthServiceDep
+from app.services.auth_service import AuthServiceDep
 
 import jwt
 from jwt.exceptions import InvalidTokenError

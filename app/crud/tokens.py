@@ -1,4 +1,4 @@
-from app.initialize_database import SessionDep
+from app.database import SessionDep
 from sqlalchemy import select, delete
 from fastapi import Depends
 
