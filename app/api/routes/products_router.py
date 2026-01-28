@@ -1,25 +1,14 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 
-from typing import Annotated
+from app.api.services.products_service import ProductServiceDep
+from app.schemas.products import PaginatedParams
 
-from app.database import SessionDep
-from app.api.deps import PaginationDep
-from app.schemas.products import ProductCreate
-from app.crud.products import get_paginated_products, add_product
+products_router = APIRouter(
+    tags = ["Products"],
+    prefix="/products"
+)
 
-products_router = APIRouter(tags = ["Products"])
-
-@products_router.get("/products", description="Получение всех продуктов в базе данных")
-async def get_products(session: SessionDep, params: PaginationDep):
-    return await get_paginated_products(session, params)
-
-@products_router.post("/add_product", description = "Добавление нового продукта")
-async def create_product(session: SessionDep, product: ProductCreate):
-    try:
-        return await add_product(session, product)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ошибка данных"
-        )
+@products_router.get("/get_products", description="Получить все продукты")
+async def get_all_products(product_service: ProductServiceDep, params: PaginatedParams = Depends()):
+    return await product_service.get_products(params)
 

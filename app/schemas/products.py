@@ -10,3 +10,7 @@ class ProductBase(BaseModel):
 
 class ProductCreate(ProductBase):
     stock_quantity: int = Field(1, le=10000)
+
+class PaginatedParams(BaseModel):
+    limit: int = Field(ge=20, le=100, default=20)
+    offset: int = Field(ge=0, default=0)

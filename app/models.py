@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from sqlalchemy.ext.baked import bakery
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
 from sqlalchemy import String, ForeignKey, DateTime
 
@@ -18,6 +19,15 @@ class User(Base):
     orders: Mapped[list["Order"]] = relationship()
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship()
 
+
+class Image(Base):
+    __tablename__ = "images"
+
+    image_id: Mapped[int] = mapped_column(primary_key=True)
+    path: Mapped[str] = mapped_column(unique=True, nullable=False)
+
+    product: Mapped["Product"] = relationship(back_populates="images")
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -27,9 +37,11 @@ class Product(Base):
     stock_quantity: Mapped[int]
     description: Mapped[str]
     price: Mapped[float] = mapped_column(nullable=False)
+    image_id: Mapped[int] = mapped_column(ForeignKey("images.image_id"))
 
     seller: Mapped["User"] = relationship(back_populates="products")
     order_details: Mapped[list["OrderDetails"]] = relationship()
+    images: Mapped["Image"] = relationship(back_populates="product")
 
 class OrderStatus(Base):
     __tablename__ = "order_statuses"

@@ -2,23 +2,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app import models
-from app.schemas.products import ProductCreate
+from app.schemas.products import PaginatedParams
+from app.database import SessionDep
 
-async def get_all_products(session: AsyncSession):
-    query = select(models.Product)
-    res = await session.execute(query)
-    return res.scalars().all()
+from typing import Annotated
 
-async def get_paginated_products(session: AsyncSession, params: dict[str, int]):
-    query = select(models.Product).limit(params["limit"]).offset(params["offset"])
-    res = await session.execute(query)
-    return res.scalars().all()
+from fastapi import Depends
 
-async def add_product(session: AsyncSession, product_data: ProductCreate):
-    try:
-        product = models.Product(**product_data.model_dump())
-        session.add(product)
-        await session.commit()
-        return {"status": "Successfully added"}
-    except Exception as e:
-        raise e
+class ProductRepository:
+
+    def __init__(self, session_: SessionDep):
+        self._session = session_
+
+    async def get_products(self, params: PaginatedParams):
+        query = (select(models.Product.product_id, models.Product.product_name, models.Product.price, models.Image.path)
+                 .join(models.Image, models.Product.image_id==models.Image.image_id)
+                 .limit(params.limit)
+                 .offset(params.offset))
+        res = await self._session.execute(query)
+        return res.mappings().all()
+
+async def get_product_repository(session: SessionDep):
+    return ProductRepository(session)
+
+ProductRepositoryDep = Annotated[ProductRepository, Depends(get_product_repository)]
+

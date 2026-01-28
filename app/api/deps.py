@@ -8,12 +8,12 @@ from app.schemas.user import UserResponse
 from app.schemas.tokens import TokenData
 from app.core.settings import settings
 from app.crud.users import UserRepositoryDep
-from app.services.auth_service import AuthServiceDep
+from app.api.services.auth_service import AuthServiceDep
 
 import jwt
 from jwt.exceptions import InvalidTokenError
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/signin")
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], user_rep: UserRepositoryDep):
     credentials_exception = HTTPException(

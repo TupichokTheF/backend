@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Cookie, Response
 
-from app.services.user_service import UserServiceDep
-from app.services.auth_service import AuthServiceDep
+from app.api.services.user_service import UserServiceDep
+from app.api.services.auth_service import AuthServiceDep
 from app.api.deps import AuthorizationDep
 from app.schemas.tokens import TokenBase
 from app.schemas.user import UserAuthentication, UserSignup, UserResponse
@@ -9,10 +9,11 @@ from app.schemas.user import UserAuthentication, UserSignup, UserResponse
 from typing import Annotated
 
 auth_router = APIRouter(
-    tags=["Users operations"]
+    tags=["Users operations"],
+    prefix="/auth"
 )
 
-@auth_router.post("/auth")
+@auth_router.post("/signin")
 async def auth_user(auth_service: AuthServiceDep, data: UserAuthentication, response: Response):
     user = await auth_service.authenticate_user(data)
     if not user:

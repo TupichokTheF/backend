@@ -4,6 +4,7 @@ from typing import Annotated
 
 
 class UserBase(BaseModel):
+    user_id: int
     username: str
     is_seller: bool = False
 

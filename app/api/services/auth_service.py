@@ -29,7 +29,8 @@ class AuthService:
 
     async def generate_refresh_token(self, data: dict):
         encoded_jwt = await self.generate_token(data, settings.REFRESH_TOKEN_EXPIRES)
-        refresh_token = RefreshTokenData(refresh_token=encoded_jwt, username=data["sub"],
+        refresh_token = RefreshTokenData(refresh_token=encoded_jwt,
+                                         username=data["sub"],
                                          expired_at=datetime.now(timezone.utc) + settings.REFRESH_TOKEN_EXPIRES)
         await self._token_rep.add_refresh_token(refresh_token)
         return encoded_jwt

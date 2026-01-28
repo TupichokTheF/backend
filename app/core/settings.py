@@ -2,12 +2,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn
 
 from datetime import timedelta
+from pathlib import Path
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="../../.env",
+        env_file="../.env",
         extra="ignore",
     )
+    BASE_DIR: str = str(Path(__file__).resolve().parent.parent)
+
     POSTGRES_SERVER: str = ""
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = ""
@@ -29,5 +32,8 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = ""
     ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=15)
     REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=1)
+
+    REDIS_HOST: str = ""
+    REDIS_PORT: str = ""
 
 settings = Settings()
