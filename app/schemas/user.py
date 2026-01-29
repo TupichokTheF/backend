@@ -25,8 +25,20 @@ class UserSignup(UserBase):
             raise ValueError('Треубется хотя бы одна цифра')
         return password_
 
-class UserAuthentication(UserSignup):
-    pass
+class UserAuthentication(BaseModel):
+    username: str
+    password: Annotated[str, Field(min_length=6)]
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, password_: str):
+        if password_.upper() == password_:
+            raise ValueError('Треубется хотя бы одна буква в нижнем регистре')
+        if password_.lower() == password_:
+            raise ValueError('Треубется хотя бы одна буква в верхнем регистре')
+        if not any(symbol.isdigit() for symbol in password_):
+            raise ValueError('Треубется хотя бы одна цифра')
+        return password_
 
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)

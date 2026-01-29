@@ -9,7 +9,7 @@ class Settings(BaseSettings):
         env_file="../.env",
         extra="ignore",
     )
-    BASE_DIR: str = str(Path(__file__).resolve().parent.parent)
+    BASE_DIR: str = str(Path(__file__).resolve().parent.parent.parent)
 
     POSTGRES_SERVER: str = ""
     POSTGRES_PORT: int = 5432

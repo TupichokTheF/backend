@@ -14,7 +14,7 @@ class UserCart:
         cart_name = f"cart:{cart_data.user_id}"
         return self.conn.hset(cart_name, key=f"product:{cart_data.product_id}", value="1")
 
-    def increment_quantity(self, cart_data: IncrementProduct):
+    def change_quantity(self, cart_data: IncrementProduct):
         cart_name = f"cart:{cart_data.user_id}"
         return self.conn.hincrby(cart_name, key=f"product:{cart_data.product_id}", amount=cart_data.quantity)
 

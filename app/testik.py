@@ -4,8 +4,5 @@ r = redis.Redis()
 
 
 if __name__ == "__main__":
-    r.hset("cart:user1", mapping={
-        "product1": 2,
-        "product2": 1,
-    })
-    print(r.hgetall("cart:user1"))
+    res = r.zrange(name="score", start=0, end=-1)
+    print(res)
