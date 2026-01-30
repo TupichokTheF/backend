@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, Depends, Body
 
 from app.api.services.products_service import ProductServiceDep
 from app.schemas.products import PaginatedParams, ProductCreate
-from app.api.deps import AuthorizationDep
+from app.core.authorization import AuthorizationDep
 
 products_router = APIRouter(
     tags = ["Products"],
@@ -21,3 +21,12 @@ async def get_popular_products(product_service: ProductServiceDep):
 async def add_product(product_service: ProductServiceDep, current_user: AuthorizationDep, product: ProductCreate):
     product.seller_id = current_user.user_id
     return await product_service.add_product(product)
+
+@products_router.post("/add_to_favourite")
+async def add_product_to_favourite(product_service: ProductServiceDep, current_user: AuthorizationDep, product_id: int = Body(embed=True)):
+    return await product_service.add_to_favourite(current_user.user_id, product_id)
+
+@products_router.get("/favourite_products/{user_id}")
+async def get_favourite_products(product_service: ProductServiceDep, current_user: AuthorizationDep, user_id: int):
+    favourite_products = await product_service.get_favourite_products(user_id)
+    return list(favourite_products)

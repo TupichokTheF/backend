@@ -27,7 +27,7 @@ class ProductService:
         response = []
         for product in reversed(popular_products):
             product_id = product.decode().split('product:')[1]
-            product_data = dict(await self._product_repo.get_products_by_id(int(product_id)))
+            product_data = dict(await self._product_repo.get_product_by_id(int(product_id)))
             await self._replace_image_by_path(product_data)
             response.append(product_data)
         return response
@@ -43,7 +43,8 @@ class ProductService:
         image_path = self._create_image(product.image)
         image_id = await self._product_repo.add_image(image_path)
         product.image_id = image_id
-        await self._product_repo.add_product(product)
+        product_id = await self._product_repo.add_product(product)
+        self._redis.zadd(name="score", mapping={f"product:{product_id}": 1})
         return {"status": "Successfully added"}
 
     def _create_image(self, image_encoded: str):
@@ -53,6 +54,19 @@ class ProductService:
         with open(image_path, "wb") as file:
             file.write(decoded_image)
         return f"/images/product{total_count_images - 1}.jpg"
+
+    async def add_to_favourite(self, user_id: int, product_id: int):
+        return self._redis.sadd(f"favourite_products:{user_id}", f"product:{product_id}")
+
+    async def get_favourite_products(self, user_id: int):
+        favourite_products = list(self._redis.smembers(f"favourite_products:{user_id}"))
+        response = []
+        for product in favourite_products:
+            product_id = product.decode().split('product:')[1]
+            product_data = dict(await self._product_repo.get_product_by_id(int(product_id)))
+            await self._replace_image_by_path(product_data)
+            response.append(product_data)
+        return response
 
 async def get_product_service(product_repo: ProductRepositoryDep, redis_: RedisDep):
     return ProductService(product_repo, redis_)

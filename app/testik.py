@@ -1,8 +1,10 @@
-import redis
+import redis, asyncio
 
 r = redis.Redis()
 
+async def main():
+    r.zadd(name="score", mapping={f"product:{3}": 1})
 
 if __name__ == "__main__":
-    res = r.zrange(name="score", start=0, end=-1)
-    print(res)
+    asyncio.run(main())
+    #print(res)

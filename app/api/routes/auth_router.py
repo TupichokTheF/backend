@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Cookie, Response
 
 from app.api.services.user_service import UserServiceDep
 from app.api.services.auth_service import AuthServiceDep
-from app.api.deps import AuthorizationDep
+from app.core.authorization import AuthorizationDep
 from app.schemas.tokens import TokenBase
 from app.schemas.user import UserAuthentication, UserSignup, UserResponse
 

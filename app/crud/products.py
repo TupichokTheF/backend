@@ -22,7 +22,7 @@ class ProductRepository:
         res = await self._session.execute(query)
         return res.mappings().all()
 
-    async def get_products_by_id(self, product_id: int):
+    async def get_product_by_id(self, product_id: int):
         query = (select(models.Product.product_id, models.Product.product_name, models.Product.price, models.Image.path)
                  .join(models.Image, models.Product.image_id == models.Image.image_id)
                  .filter(models.Product.product_id==product_id))
@@ -40,7 +40,8 @@ class ProductRepository:
         product = models.Product(**product.model_dump(exclude={"image"}))
         self._session.add(product)
         await self._session.commit()
-        return
+        await self._session.refresh(product)
+        return product.product_id
 
 async def get_product_repository(session: SessionDep):
     return ProductRepository(session)
