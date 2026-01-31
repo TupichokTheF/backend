@@ -29,10 +29,7 @@ class AuthService:
 
     async def generate_refresh_token(self, data: dict):
         encoded_jwt = await self.generate_token(data, settings.REFRESH_TOKEN_EXPIRES)
-        refresh_token = RefreshTokenData(refresh_token=encoded_jwt,
-                                         username=data["sub"],
-                                         expired_at=datetime.now(timezone.utc) + settings.REFRESH_TOKEN_EXPIRES)
-        await self._token_rep.add_refresh_token(refresh_token)
+        await self._token_rep.add_refresh_token(encoded_jwt, data["sub"])
         return encoded_jwt
 
     async def generate_token(self, data: dict, expires_delta: timedelta | None = settings.ACCESS_TOKEN_EXPIRES):
@@ -50,7 +47,7 @@ class AuthService:
                 detail="Incorrect refresh token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return token.refresh_token
+        return token.decode()
 
     async def delete_refresh_token(self, refresh_token):
         return await self._token_rep.delete_refresh_token(refresh_token)

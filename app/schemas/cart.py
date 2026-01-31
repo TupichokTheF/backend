@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 
 class CartDataBase(BaseModel):
-    user_id: int
     product_id: int
 
 class AddToCard(CartDataBase):

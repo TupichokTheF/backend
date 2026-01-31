@@ -26,7 +26,11 @@ async def add_product(product_service: ProductServiceDep, current_user: Authoriz
 async def add_product_to_favourite(product_service: ProductServiceDep, current_user: AuthorizationDep, product_id: int = Body(embed=True)):
     return await product_service.add_to_favourite(current_user.user_id, product_id)
 
-@products_router.get("/favourite_products/{user_id}")
-async def get_favourite_products(product_service: ProductServiceDep, current_user: AuthorizationDep, user_id: int):
-    favourite_products = await product_service.get_favourite_products(user_id)
+@products_router.get("/favourite_products")
+async def get_favourite_products(product_service: ProductServiceDep, current_user: AuthorizationDep):
+    favourite_products = await product_service.get_favourite_products(current_user.user_id)
     return list(favourite_products)
+
+@products_router.delete("/delete_favourite")
+async def delete_favourite_product(product_service: ProductServiceDep, current_user: AuthorizationDep, product_id: int = Body(embed=True)):
+    return await product_service.delete_favourite(current_user.user_id, product_id)

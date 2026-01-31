@@ -1,4 +1,4 @@
-from app.database import SessionDep
+from app.database import RedisDep
 from sqlalchemy import select, delete
 from fastapi import Depends
 
@@ -9,26 +9,20 @@ from typing import Annotated
 
 class TokenRepository:
 
-    def __init__(self, session: SessionDep):
-        self._session = session
+    def __init__(self, redis_: RedisDep):
+        self._redis = redis_
 
-    async def add_refresh_token(self, refresh_token: RefreshTokenData):
-        self._session.add(RefreshToken(**refresh_token.model_dump()))
-        await self._session.commit()
+    async def add_refresh_token(self, refresh_token: RefreshTokenData, username: str):
+        self._redis.set(name=f"refresh_token:{refresh_token}", value=f"username:{username}", ex=86400)
         return {"status": "Successfully added"}
 
     async def get_refresh_token(self, refresh_token: str):
-        query = select(RefreshToken).filter(RefreshToken.refresh_token == refresh_token)
-        res = await self._session.execute(query)
-        return res.scalar_one_or_none()
+        return self._redis.get(name=f"refresh_token:{refresh_token}")
 
     async def delete_refresh_token(self, refresh_token):
-        query = delete(RefreshToken).filter_by(refresh_token=refresh_token)
-        await self._session.execute(query)
-        await self._session.commit()
-        return {"Status": "Successfully deleted"}
+        return self._redis.delete(f"refresh_token:{refresh_token}")
 
-async def get_token_repository(session: SessionDep):
-    return TokenRepository(session)
+async def get_token_repository(redis_: RedisDep):
+    return TokenRepository(redis_)
 
 TokenRepositoryDep = Annotated[TokenRepository, Depends(get_token_repository)]

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body
 
 from app.api.services.user_cart import UserCartDep
-from app.schemas.cart import AddToCard, CartDataBase
+from app.schemas.cart import AddToCard, IncrementProduct
+from app.core.authorization import AuthorizationDep
 
-from typing import Annotated
 
 cart_router = APIRouter(
     tags = ["Cart operations"],
@@ -11,9 +11,15 @@ cart_router = APIRouter(
 )
 
 @cart_router.post("/add")
-async def add_to_cart(user_cart: UserCartDep, cart_data: AddToCard):
-    return user_cart.add_to_cart(cart_data)
+async def add_to_cart(user_cart: UserCartDep, product_id: int = Body(embed=True)):
+    cart = AddToCard(product_id=product_id)
+    return user_cart.add_to_cart(cart)
 
 @cart_router.get("/get")
-async def get_user_cart(user_cart: UserCartDep, user_id: int):
-    return user_cart.get_user_cart(user_id)
+async def get_user_cart(user_cart: UserCartDep):
+    return await user_cart.get_user_cart()
+
+@cart_router.patch("/update_quantity")
+async def update_quantity_of_product(user_cart: UserCartDep, cart_data: list[IncrementProduct] = Body(embed=True)):
+    user_cart.change_quantity(cart_data)
+    return
