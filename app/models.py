@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from sqlalchemy.ext.baked import bakery
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
 from sqlalchemy import String, ForeignKey, DateTime
 

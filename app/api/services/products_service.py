@@ -70,6 +70,14 @@ class ProductService:
     async def delete_favourite(self, user_id, product_id):
         return self._redis.srem(f"favourite_products:{user_id}", f"product:{product_id}")
 
+    async def search_products(self, query: str):
+         products = await self._product_repo.search_products(query)
+         for i in range(len(products)):
+             product = dict(products[i])
+             await self._replace_image_by_path(product)
+             products[i] = product
+         return products
+
 async def get_product_service(product_repo: ProductRepositoryDep, redis_: RedisDep):
     return ProductService(product_repo, redis_)
 

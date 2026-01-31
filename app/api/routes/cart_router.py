@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Body
 
 from app.api.services.user_cart import UserCartDep
-from app.schemas.cart import AddToCard, IncrementProduct
-from app.core.authorization import AuthorizationDep
+from app.schemas.cart import AddToCard, IncrementProduct, DeleteProductFromCart
 
 
 cart_router = APIRouter(
@@ -22,4 +21,8 @@ async def get_user_cart(user_cart: UserCartDep):
 @cart_router.patch("/update_quantity")
 async def update_quantity_of_product(user_cart: UserCartDep, cart_data: list[IncrementProduct] = Body(embed=True)):
     user_cart.change_quantity(cart_data)
-    return
+    return {"status": "updated"}
+
+@cart_router.delete("/delete_product")
+async def delete_product(user_cart: UserCartDep, cart_data: DeleteProductFromCart):
+    return user_cart.delete_product(cart_data)

@@ -34,3 +34,7 @@ async def get_favourite_products(product_service: ProductServiceDep, current_use
 @products_router.delete("/delete_favourite")
 async def delete_favourite_product(product_service: ProductServiceDep, current_user: AuthorizationDep, product_id: int = Body(embed=True)):
     return await product_service.delete_favourite(current_user.user_id, product_id)
+
+@products_router.get("/search/{query}")
+async def search_products(product_service: ProductServiceDep, query: str):
+    return await product_service.search_products(query)

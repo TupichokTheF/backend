@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app import models
 from app.schemas.products import PaginatedParams, ProductCreate
@@ -42,6 +42,13 @@ class ProductRepository:
         await self._session.commit()
         await self._session.refresh(product)
         return product.product_id
+
+    async def search_products(self, query: str):
+        query = (select(models.Product.product_id, models.Product.product_name, models.Product.price, models.Image.path)
+                 .join(models.Image, models.Product.image_id == models.Image.image_id)
+                 .where(func.similarity(models.Product.product_name, query) > 0.1))
+        res = await self._session.execute(query)
+        return res.mappings().all()
 
 async def get_product_repository(session: SessionDep):
     return ProductRepository(session)

@@ -8,3 +8,6 @@ class AddToCard(CartDataBase):
 
 class IncrementProduct(CartDataBase):
     quantity: int = Field(ge=1, le=99)
+
+class DeleteProductFromCart(CartDataBase):
+    pass
