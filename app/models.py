@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
 from sqlalchemy import String, ForeignKey, DateTime
+from sqlalchemy.dialects.postgresql import JSONB
 
 Base = declarative_base()
 
@@ -83,4 +84,13 @@ class RefreshToken(Base):
 
     usernames: Mapped["User"] = relationship(back_populates='refresh_tokens')
 
+class Logger(Base):
+    __tablename__ = "logging_table"
 
+    log_id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    client_host: Mapped[str]
+    request_method: Mapped[str]
+    request_url: Mapped[str]
+    status_code: Mapped[int]
+    #response_body: Mapped[dict] = mapped_column(JSONB)

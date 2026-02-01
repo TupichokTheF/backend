@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from app.api.api_router import api_router
 from app.database import database
+from app.middleware.logging_middleware import CustomLoggingMiddleware
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
@@ -23,6 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(CustomLoggingMiddleware)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

@@ -11,19 +11,23 @@ import redis
 class DataBase:
 
     def __init__(self):
-        self.engine = create_async_engine(str(settings.DATABASE_URL))
-        self.session = async_sessionmaker(self.engine)
+        self._engine = create_async_engine(str(settings.DATABASE_URL))
+        self._session = async_sessionmaker(self._engine)
 
     async def get_session(self):
-        async with self.session() as ses:
+        async with self._session() as ses:
             yield ses
 
     async def init_database(self):
-        async with self.engine.begin() as connection:
+        async with self._engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
 
     async def dispose(self):
-        await self.engine.dispose()
+        await self._engine.dispose()
+
+    @property
+    def session(self):
+        return self._session()
 
 database = DataBase()
 SessionDep = Annotated[AsyncSession, Depends(database.get_session)]
