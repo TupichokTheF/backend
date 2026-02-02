@@ -54,7 +54,7 @@ class Order(Base):
 
     order_id: Mapped[int] = mapped_column(primary_key=True)
     receiver_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
-    status_id: Mapped[int] = mapped_column(ForeignKey("order_statuses.status_id"))
+    status_id: Mapped[int] = mapped_column(ForeignKey("order_statuses.status_id"), default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     status: Mapped["OrderStatus"] = relationship(back_populates="orders")
@@ -70,14 +70,3 @@ class OrderDetails(Base):
 
     product: Mapped["Product"] = relationship(back_populates="order_details")
     order: Mapped["Order"] = relationship(back_populates="order_details")
-
-class Logger(Base):
-    __tablename__ = "logging_table"
-
-    log_id: Mapped[int] = mapped_column(primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
-    client_host: Mapped[str]
-    request_method: Mapped[str]
-    request_url: Mapped[str]
-    status_code: Mapped[int]
-    #response_body: Mapped[dict] = mapped_column(JSONB)

@@ -8,9 +8,11 @@ class UserBase(BaseModel):
     username: str
     is_seller: bool = False
 
-class UserSignup(UserBase):
+class UserSignup(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    username: str
+    is_seller: bool = False
     email: str
     password: Annotated[str, Field(min_length=6)]
 

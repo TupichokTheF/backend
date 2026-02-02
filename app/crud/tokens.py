@@ -3,7 +3,6 @@ from sqlalchemy import select, delete
 from fastapi import Depends
 
 from app.schemas.tokens import RefreshTokenData
-from app.models import RefreshToken
 
 from typing import Annotated
 

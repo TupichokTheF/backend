@@ -4,6 +4,8 @@ from pydantic import PostgresDsn
 from datetime import timedelta
 from pathlib import Path
 
+import pika
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../.env",
@@ -35,5 +37,11 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str = ""
     REDIS_PORT: str = ""
+
+    RMQ_HOST: str = ""
+    RMQ_PORT: int = 5672
+    @property
+    def RMQ_CONNECTION(self):
+        return pika.ConnectionParameters(host=self.RMQ_HOST, port=self.RMQ_PORT)
 
 settings = Settings()

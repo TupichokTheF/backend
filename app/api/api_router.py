@@ -1,6 +1,7 @@
 from app.api.routes.products_router import products_router
 from app.api.routes.auth_router import auth_router
 from app.api.routes.cart_router import cart_router
+from app.api.routes.orders_router import orders_router
 
 from fastapi import APIRouter
 
@@ -10,3 +11,4 @@ api_router = APIRouter(
 api_router.include_router(products_router)
 api_router.include_router(auth_router)
 api_router.include_router(cart_router)
+api_router.include_router(orders_router)
