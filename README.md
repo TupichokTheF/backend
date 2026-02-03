@@ -13,7 +13,8 @@ REST API сервер с полным функционалом для e-commerce
 - **PostgreSQL** — основная база данных
 - **Redis** — кэширование и сессии
 - **JWT** — Access/Refresh токены для аутентификации
-
+- **RabbitMQ** — Брокер сообщений для микросервисов
+  
 ## Возможности
 
 - Аутентификация и авторизация (JWT)
@@ -105,6 +106,3 @@ uvicorn app.main:app --reload
 - Структура и база данных
 - Файл настроек
 
-## Автор
-
-[TupichokTheF](https://github.com/TupichokTheF)
