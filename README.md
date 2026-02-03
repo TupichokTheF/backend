@@ -28,19 +28,44 @@ REST API сервер с полным функционалом для e-commerce
 
 ## Структура проекта
 
-```
-backend/
 ├── app/
-│   ├── api/              # Роуты (endpoints)
-│   ├── models/           # Модели базы данных
-│   ├── schemas/          # Pydantic-схемы
-│   ├── services/         # Бизнес-логика
-│   ├── repositories/     # Работа с БД
-│   └── core/             # Конфигурация, зависимости
-├── .env                  # Переменные окружения
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── api_router.py       # Главный роутер API
+│   │   ├── routes/             # Эндпоинты
+│   │   └── services/           # Сервисы бизнес-логики
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── authorization.py    # Логика авторизации
+│   │   ├── security.py         # JWT, хэширование паролей
+│   │   └── settings.py         # Конфигурация приложения
+│   │
+│   ├── crud/
+│   │   ├── __init__.py
+│   │   ├── products.py         # CRUD продуктов
+│   │   ├── tokens.py           # Работа с токенами
+│   │   └── users.py            # CRUD пользователей
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── cart.py             # Схемы корзины
+│   │   ├── logger.py           # Схемы логирования
+│   │   ├── products.py         # Схемы продуктов
+│   │   ├── tokens.py           # Схемы токенов
+│   │   └── user.py             # Схемы пользователей
+│   │
+│   ├── middleware/
+│   │   ├── __init__.py
+│   │   └── logging_middleware.py  # Middleware логирования
+│   │
+│   ├── __init__.py
+│   ├── main.py                 # Точка входа
+│   ├── database.py             # Подключение к БД
+│   └── models.py               # SQLAlchemy модели
+│
+├── .env                        # Переменные окружения
 └── README.md
-```
-
 ## Установка
 
 1. Клонируйте репозиторий:
@@ -105,4 +130,5 @@ uvicorn app.main:app --reload
 - Инициализация проекта
 - Структура и база данных
 - Файл настроек
+
 
