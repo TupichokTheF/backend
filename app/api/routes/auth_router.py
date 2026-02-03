@@ -54,13 +54,8 @@ async def logout_user(auth_service: AuthServiceDep, response: Response, refresh_
 @auth_router.post("/refresh")
 async def refresh_user_token(auth_service: AuthServiceDep, refresh_token: Annotated[str, Cookie()]):
     try:
-        refresh_token = await auth_service.get_refresh_token(refresh_token)
+        username = await auth_service.get_username_by_refresh_token(refresh_token)
+        access_token = await auth_service.generate_token({"sub": username})
+        return TokenBase(access_token=access_token, token_type="bearer")
     except HTTPException as e:
         raise e
-    access_token = await auth_service.generate_token({"sub": refresh_token.username})
-    return TokenBase(access_token=access_token, token_type="bearer")
-
-
-@auth_router.get("/check_auth", response_model = UserResponse)
-async def check_auth(current_user: AuthorizationDep):
-    return current_user

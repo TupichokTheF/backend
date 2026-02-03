@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
-from microservices.orders.models import Base
-from microservices.orders.settings import settings
+from microservices.email_notification.models import Base
+from microservices.email_notification.settings import settings
+from microservices.email_notification import models
 
 import redis
 
@@ -20,8 +21,7 @@ class DataBase:
             yield ses
 
     def init_database(self):
-        with self._engine.begin() as connection:
-            connection.run_sync(Base.metadata.create_all)
+        Base.metadata.create_all(bind=self._engine)
 
     def dispose(self):
         self._engine.dispose()
@@ -31,6 +31,10 @@ redis = redis.Redis()
 
 def main():
     database.init_database()
+    with database.session() as ses:
+        query = select(models.User)
+        res = ses.execute(query)
+        print(res)
 
 if __name__ == "__main__":
     main()

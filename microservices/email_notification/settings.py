@@ -1,8 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn
 
-import pika
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../../.env",
@@ -25,10 +23,8 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB
         )
 
-    RMQ_HOST: str = ""
-    RMQ_PORT: int = 5672
-    @property
-    def RMQ_CONNECTION(self):
-        return pika.ConnectionParameters(host=self.RMQ_HOST, port=self.RMQ_PORT)
+    SMTP_PASS: str = ""
+    SMTP_EMAIL: str = ""
+
 
 settings = Settings()

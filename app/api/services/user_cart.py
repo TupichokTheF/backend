@@ -15,6 +15,7 @@ class UserCart:
         self._cart_name = f"cart:{current_user.user_id}"
 
     def add_to_cart(self, cart_data: AddToCard):
+        self._redis.zincrby("score", 1, f"product:{cart_data.product_id}")
         return self._redis.hset(self._cart_name, key=f"product:{cart_data.product_id}", value="1")
 
     def change_quantity(self, cart_data: list[IncrementProduct]):
@@ -22,6 +23,7 @@ class UserCart:
             self._redis.hset(self._cart_name, key=f"product:{cart_changes.product_id}", value=str(cart_changes.quantity))
 
     def delete_product(self, cart_data: DeleteProductFromCart):
+        self._redis.zincrby("score", -1, f"product:{cart_data.product_id}")
         return self._redis.hdel(self._cart_name, f"product:{cart_data.product_id}")
 
     async def get_user_cart(self):

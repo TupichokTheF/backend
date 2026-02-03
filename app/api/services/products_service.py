@@ -65,9 +65,11 @@ class ProductService:
         return image_path
 
     async def add_to_favourite(self, user_id: int, product_id: int):
+        self._redis.zincrby("score", 1, f"product:{product_id}")
         return self._redis.sadd(f"favourite_products:{user_id}", f"product:{product_id}")
 
     async def delete_favourite(self, user_id, product_id):
+        self._redis.zincrby("score", -1, f"product:{product_id}")
         return self._redis.srem(f"favourite_products:{user_id}", f"product:{product_id}")
 
     async def search_products(self, query: str):

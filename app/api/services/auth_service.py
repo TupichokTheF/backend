@@ -39,6 +39,14 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, self._JWT_SECRET_KEY, algorithm=self._ALGORITHM)
         return encoded_jwt
 
+    async def get_username_by_refresh_token(self, refresh_token: str):
+        try:
+            await self.get_refresh_token(refresh_token)
+        except Exception as e:
+            raise e
+        token = await self._token_rep.get_refresh_token(refresh_token)
+        return token.decode().split(":")[-1]
+
     async def get_refresh_token(self, refresh_token_: str):
         token = await self._token_rep.get_refresh_token(refresh_token_)
         if not token:

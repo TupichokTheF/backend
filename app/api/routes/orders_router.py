@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.services.orders_service import RabbitDep
+from app.core.authorization import AuthorizationDep
 
 orders_router = APIRouter(
     prefix="/orders",
@@ -8,6 +9,6 @@ orders_router = APIRouter(
 )
 
 @orders_router.post("/make_order")
-async def make_user_order(rabbit: RabbitDep, user_id: int):
-    rabbit.produce_message("orders", {"user_id": user_id})
+async def make_user_order(rabbit: RabbitDep, current_user: AuthorizationDep):
+    rabbit.produce_message("orders", {"user_id": current_user.user_id})
     return {"status": "Order made"}

@@ -2,14 +2,12 @@ import pika, json
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
 
-from microservices.orders.service import OrderService
-from microservices.orders.producer import RabbitProducer
+from microservices.email_notification.service import NotificationService
 
 class RabbitConsumer:
 
     def __init__(self):
-        self._order_service = OrderService()
-        self._message_producer = RabbitProducer()
+        self._notification_service = NotificationService()
 
     def start_consuming(self):
         self._make_connection()
@@ -21,7 +19,7 @@ class RabbitConsumer:
 
     def _consume_message(self, channel: BlockingChannel):
         channel.basic_consume(
-            queue="orders",
+            queue="notifications",
             on_message_callback=self._proces_message
         )
         channel.start_consuming()
@@ -33,17 +31,7 @@ class RabbitConsumer:
                         body: bytes
                         ):
         data = json.loads(body)
-        message = {
-            "receiver": "maks.belopolov@mail.ru",
-            "title": "OZON market",
-            "type": "notification",
-            "message": "Ваш заказ в пути!"
-        }
-        try:
-            self._order_service.make_order(data)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-        except Exception as e:
-            message["message"] = "Ваш заказ отменен."
-        self._message_producer.produce_message("notifications", message)
+        self._notification_service.send_email(data)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
 consumer = RabbitConsumer()
