@@ -1,6 +1,6 @@
 # Backend
 
-Backend-приложение для интернет-магазина на Python с использованием FastAPI, PostgreSQL и Redis. EZ
+Backend-приложение для интернет-магазина на Python с использованием FastAPI, PostgreSQL и Redis. EZ :frog:
 
 ## Описание
 
@@ -137,5 +137,6 @@ uvicorn app.main:app --reload
 - Инициализация проекта
 - Структура и база данных
 - Файл настроек
+
 
 
