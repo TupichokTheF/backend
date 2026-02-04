@@ -90,22 +90,7 @@ export default {
           return
         }
 
-        const data = await response.json()
-        console.log('Ответ сервера:', data)
-
-        // Успешная авторизация - сохраняем токен
-        const token = data.access_token || data.token
-        if (token) {
-          localStorage.setItem('access_token', token)
-          console.log('Токен сохранён:', localStorage.getItem('access_token'))
-
-          // Небольшая задержка перед редиректом
-          await this.$nextTick()
-          this.$router.push('/')
-        } else {
-          console.error('Токен не найден в ответе:', data)
-          this.errorMessage = 'Ошибка авторизации. Токен не получен.'
-        }
+        this.$router.push(`/two-factor-auth?username=${encodeURIComponent(this.username)}`)
 
       } catch (error) {
         console.error('Ошибка авторизации:', error)

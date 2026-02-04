@@ -8,6 +8,7 @@ import Register from '../views/Register.vue'
 import AddProduct from '../views/AddProduct.vue'
 import Favorites from '../views/Favorites.vue'
 import SearchResults from '../views/SearchResults.vue'
+import TwoFactorAuth from '../views/TwoFactorAuth.vue'
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/search/:query',
     name: 'SearchResults',
     component: SearchResults
+  },
+  {
+    path: '/two-factor-auth',
+    name: 'TwoFactorAuth',
+    component: TwoFactorAuth
   }
 ]
 

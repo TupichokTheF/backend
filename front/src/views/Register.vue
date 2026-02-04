@@ -7,17 +7,6 @@
 
         <form @submit.prevent="handleRegister" class="register-form">
           <div class="form-group">
-            <label for="name">Имя и фамилия</label>
-            <input
-              type="text"
-              id="name"
-              v-model="name"
-              placeholder="Введите ваше имя"
-              required
-            />
-          </div>
-
-          <div class="form-group">
             <label for="email">Email</label>
             <input
               type="email"
@@ -26,15 +15,18 @@
               placeholder="example@email.com"
               required
             />
+            <div v-if="email && !isValidEmail" class="error-hint">
+              Введите корректный email адрес
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="phone">Телефон</label>
+            <label for="login">Логин</label>
             <input
-              type="tel"
-              id="phone"
-              v-model="phone"
-              placeholder="+7 (___) ___-__-__"
+              type="text"
+              id="login"
+              v-model="login"
+              placeholder="Введите логин"
               required
             />
           </div>
@@ -45,45 +37,15 @@
               type="password"
               id="password"
               v-model="password"
-              placeholder="Минимум 8 символов"
-              required
-              minlength="8"
-            />
-            <div class="password-hint">
-              Пароль должен содержать минимум 8 символов
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="confirmPassword">Подтвердите пароль</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              v-model="confirmPassword"
-              placeholder="Повторите пароль"
+              placeholder="Введите пароль"
               required
             />
-            <div v-if="confirmPassword && password !== confirmPassword" class="error-hint">
-              Пароли не совпадают
-            </div>
           </div>
 
-          <div class="form-checkbox">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="agreeTerms" required />
-              <span>Я согласен с <a href="#" @click.prevent>условиями использования</a> и <a href="#" @click.prevent>политикой конфиденциальности</a></span>
-            </label>
-          </div>
+          <p v-if="registerError" class="register-error">{{ registerError }}</p>
 
-          <div class="form-checkbox">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="subscribeNews" />
-              <span>Получать новости и специальные предложения</span>
-            </label>
-          </div>
-
-          <button type="submit" class="register-btn" :disabled="!isFormValid">
-            Зарегистрироваться
+          <button type="submit" class="register-btn" :disabled="!isFormValid || loading">
+            {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
           </button>
         </form>
 
@@ -122,46 +84,56 @@ export default {
   name: 'Register',
   data() {
     return {
-      name: '',
       email: '',
-      phone: '',
+      login: '',
       password: '',
-      confirmPassword: '',
-      agreeTerms: false,
-      subscribeNews: false
+      registerError: null,
+      loading: false
     }
   },
   computed: {
+    isValidEmail() {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)
+    },
     isFormValid() {
-      return (
-        this.name &&
-        this.email &&
-        this.phone &&
-        this.password &&
-        this.confirmPassword &&
-        this.password === this.confirmPassword &&
-        this.password.length >= 8 &&
-        this.agreeTerms
-      )
+      return this.email && this.isValidEmail && this.login && this.password
     }
   },
   methods: {
-    handleRegister() {
-      if (!this.isFormValid) {
-        return
+    async handleRegister() {
+      if (!this.isFormValid) return
+
+      this.loading = true
+      this.registerError = null
+
+      try {
+        const response = await fetch('http://localhost:8000/api/auth/signup', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            username: this.login,
+            is_seller: false,
+            email: this.email,
+            password: this.password
+          })
+        })
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => null)
+          throw new Error(data?.detail || 'Не удалось зарегистрироваться')
+        }
+
+        this.$router.push('/login')
+      } catch (error) {
+        console.error('Ошибка регистрации:', error)
+        this.registerError = error.message || 'Произошла ошибка при регистрации. Попробуйте снова.'
+      } finally {
+        this.loading = false
       }
-
-      // TODO: Реализовать логику регистрации
-      console.log('Register attempt:', {
-        name: this.name,
-        email: this.email,
-        phone: this.phone,
-        subscribeNews: this.subscribeNews
-      })
-
-      // Временная заглушка - перенаправление на главную
-      alert('Регистрация успешна! Добро пожаловать на OZON!')
-      this.$router.push('/')
     }
   }
 }
@@ -235,48 +207,20 @@ export default {
   box-shadow: 0 0 0 3px rgba(0, 91, 255, 0.1);
 }
 
-.password-hint {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--ozon-text-secondary);
-}
-
 .error-hint {
   margin-top: 6px;
   font-size: 13px;
   color: #dc3545;
 }
 
-.form-checkbox {
-  margin-bottom: 16px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-  color: var(--ozon-text);
+.register-error {
+  color: #ff4444;
   font-size: 14px;
-  line-height: 1.5;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-.checkbox-label a {
-  color: var(--ozon-primary);
-  font-weight: 500;
-  text-decoration: underline;
-}
-
-.checkbox-label a:hover {
-  opacity: 0.8;
+  margin-bottom: 0;
+  padding: 8px 12px;
+  background: #fff5f5;
+  border-radius: 8px;
+  border: 1px solid #ffe0e0;
 }
 
 .register-btn {
