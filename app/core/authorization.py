@@ -34,12 +34,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], user_r
         raise credentials_exception
     return user
 
-async def check_authorization(auth_serv: AuthServiceDep,
+async def check_authorization(auth_service: AuthServiceDep,
                               current_user: Annotated[UserResponse, Depends(get_current_user)],
                               refresh_token: Annotated[str, Cookie()]
                               ):
     try:
-        await auth_serv.get_refresh_token(refresh_token)
+        await auth_service.get_username_by_refresh_token(refresh_token)
     except HTTPException as e:
         raise e
 

@@ -14,7 +14,7 @@ auth_router = APIRouter(
 
 
 @auth_router.post("/signin")
-async def auth_user(auth_service: AuthServiceDep, data: UserAuthentication):
+async def auth_user(auth_service: AuthServiceDep, data: UserAuthentication, response: Response):
     user = await auth_service.authenticate_user(data)
     if not user:
         raise HTTPException(
@@ -22,7 +22,17 @@ async def auth_user(auth_service: AuthServiceDep, data: UserAuthentication):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return {"detail": "User authenticated"}
+    access_token = await auth_service.generate_token({"sub": user.username})
+    refresh_token = await auth_service.generate_refresh_token({"sub": user.username})
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        samesite="lax",
+        max_age=24 * 60 * 60
+    )
+    return TokenBase(access_token=access_token, token_type="bearer")
+    #return {"detail": "User authenticated"}
 
 
 @auth_router.post("/signup")
@@ -36,8 +46,8 @@ async def signup_user(user_service: UserServiceDep, data: UserSignup):
 @auth_router.post("/logout")
 async def logout_user(auth_service: AuthServiceDep, response: Response, refresh_token: Annotated[str, Cookie()]):
     try:
-        token = await auth_service.get_refresh_token(refresh_token)
-        await auth_service.delete_refresh_token(token)
+        username = await auth_service.get_username_by_refresh_token(refresh_token)
+        await auth_service.delete_refresh_token(username)
         response.delete_cookie("refresh_token")
         return {"detail": "Logged out"}
     except Exception:

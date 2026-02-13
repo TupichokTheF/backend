@@ -43,22 +43,14 @@ class AuthService:
         return encoded_jwt
 
     async def get_username_by_refresh_token(self, refresh_token: str):
-        try:
-            await self.get_refresh_token(refresh_token)
-        except Exception as e:
-            raise e
-        token = await self._token_rep.get_refresh_token(refresh_token)
-        return token.decode().split(":")[-1]
-
-    async def get_refresh_token(self, refresh_token_: str):
-        token = await self._token_rep.get_refresh_token(refresh_token_)
-        if not token:
+        username = await self._token_rep.get_username_by_refresh_token(refresh_token)
+        if not username:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect refresh token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return token.decode()
+        return username.decode().split(":")[-1]
 
     async def delete_refresh_token(self, refresh_token):
         return await self._token_rep.delete_refresh_token(refresh_token)

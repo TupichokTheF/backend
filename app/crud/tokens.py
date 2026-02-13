@@ -15,7 +15,7 @@ class TokenRepository:
         self._redis.set(name=f"refresh_token:{refresh_token}", value=f"username:{username}", ex=86400)
         return {"status": "Successfully added"}
 
-    async def get_refresh_token(self, refresh_token: str):
+    async def get_username_by_refresh_token(self, refresh_token: str):
         return self._redis.get(name=f"refresh_token:{refresh_token}")
 
     async def delete_refresh_token(self, refresh_token):
