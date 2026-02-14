@@ -58,7 +58,7 @@ class AuthService:
     async def send_two_auth_code(self, username: str):
         user = await self._user_rep.get_user_by_username(username)
         user_two_auth_code = random.randint(100000, 999999)
-        self._redis.set(name=f"two_factor_code:{user.user_id}", value=str(user_two_auth_code))
+        self._redis.set(name=f"two_factor_code:{user.user_id}", value=str(user_two_auth_code), ex=300)
         message = {
             "receiver": user.email,
             "type": "two_factor_auth",
